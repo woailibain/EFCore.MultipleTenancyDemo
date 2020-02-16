@@ -46,12 +46,20 @@ namespace kiwiho.Course.MultipleTenancy.EFcore.Api.Infrastructure
             services.AddScoped<ISqlConnectionResolver, TenantSqlConnectionResolver>();
             services.AddDbContext<TDbContext>((serviceProvider, options) =>
             {
+                var tenantInfo = serviceProvider.GetService<TenantInfo>();
                 var resolver = serviceProvider.GetRequiredService<ISqlConnectionResolver>();
 
-                var dbOptionBuilder = options.UseMySql(resolver.GetConnection());
+                var dbOptionBuilder = options.UseMySql(resolver.GetConnection(), builder =>
+                {
+                    if (option.Type == ConnectionResolverType.ByTabel)
+                    {
+                        builder.MigrationsHistoryTable($"{tenantInfo.Name}__EFMigrationsHistory");
+                    }
+                });
                 if (option.Type == ConnectionResolverType.ByTabel)
                 {
                     dbOptionBuilder.ReplaceService<IModelCacheKeyFactory, TenantModelCacheKeyFactory<TDbContext>>();
+                    dbOptionBuilder.ReplaceService<Microsoft.EntityFrameworkCore.Migrations.IMigrationsAssembly, MigrationByTenantAssembly>();
                 }
             });
 
