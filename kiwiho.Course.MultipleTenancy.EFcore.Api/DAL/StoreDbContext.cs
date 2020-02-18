@@ -18,7 +18,11 @@ namespace kiwiho.Course.MultipleTenancy.EFcore.Api.DAL
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.Entity<Product>().ToTable(this.tenantInfo.Name + "_Products");
+            // seperate by table
+            // modelBuilder.Entity<Product>().ToTable(this.tenantInfo.Name + "_Products");
+
+            // seperate by Schema
+            modelBuilder.Entity<Product>().ToTable(nameof(this.Products), "dbo."+this.tenantInfo.Name);
         }
     }
 

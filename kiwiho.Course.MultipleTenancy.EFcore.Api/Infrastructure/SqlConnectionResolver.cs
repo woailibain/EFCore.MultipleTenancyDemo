@@ -30,6 +30,7 @@ namespace kiwiho.Course.MultipleTenancy.EFcore.Api.Infrastructure
                     connectionString = configuration.GetConnectionString(this.tenantInfo.Name);
                     break;
                 case ConnectionResolverType.ByTabel:
+                case ConnectionResolverType.BySchema:
                     connectionString = configuration.GetConnectionString(this.option.ConnectinStringName);
                     break;
             }

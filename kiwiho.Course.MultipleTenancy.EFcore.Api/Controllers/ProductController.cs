@@ -16,6 +16,7 @@ namespace kiwiho.Course.MultipleTenancy.EFcore.Api.Controllers
         public ProductController(StoreDbContext storeDbContext){
             this.storeDbContext = storeDbContext;
             this.storeDbContext.Database.EnsureCreated();
+            this.storeDbContext.Database.Migrate();
         }
 
         [HttpPost("")]
