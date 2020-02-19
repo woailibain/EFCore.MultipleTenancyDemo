@@ -66,6 +66,7 @@ namespace kiwiho.Course.MultipleTenancy.EFcore.Api.Infrastructure
                 if (option.Type == ConnectionResolverType.ByTabel || option.Type == ConnectionResolverType.BySchema)
                 {
                     dbOptionBuilder.ReplaceService<IModelCacheKeyFactory, TenantModelCacheKeyFactory<TDbContext>>();
+                    dbOptionBuilder.ReplaceService<Microsoft.EntityFrameworkCore.Migrations.IMigrationsAssembly, MigrationByTenantAssembly>();
                 }
             });
 

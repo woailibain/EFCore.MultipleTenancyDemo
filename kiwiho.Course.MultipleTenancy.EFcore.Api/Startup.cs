@@ -29,7 +29,7 @@ namespace kiwiho.Course.MultipleTenancy.EFcore.Api
         {
             // services.AddConnectionByDatabase<StoreDbContext>();
             // services.AddTenantDatabasePerTable<StoreDbContext>("default");
-            services.AddTenantDatabasePerSchema<StoreDbContext>("mssql");
+            services.AddTenantDatabasePerSchema<StoreDbContext>("mssql4");
             services.AddControllers();
         }
 
