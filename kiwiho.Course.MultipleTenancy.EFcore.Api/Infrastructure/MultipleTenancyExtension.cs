@@ -46,20 +46,39 @@ namespace kiwiho.Course.MultipleTenancy.EFcore.Api.Infrastructure
 
             services.AddScoped<TenantInfo>();
             services.AddScoped<ISqlConnectionResolver, TenantSqlConnectionResolver>();
-            
+
             services.AddDbContext<TDbContext>((serviceProvider, options) =>
             {
                 var dbContextManager = serviceProvider.GetService<IDbContextManager>();
                 var resolver = serviceProvider.GetRequiredService<ISqlConnectionResolver>();
+                var tenant = serviceProvider.GetService<TenantInfo>();
 
                 DbContextOptionsBuilder dbOptionBuilder = null;
                 switch (option.DBType)
                 {
                     case DatabaseIntegration.SqlServer:
-                        dbOptionBuilder = options.UseSqlServer(resolver.GetConnection());
+                        dbOptionBuilder = options.UseSqlServer(resolver.GetConnection(),
+                            optionBuilder =>
+                            {
+                                if (option.Type == ConnectionResolverType.ByTabel)
+                                {
+                                    optionBuilder.MigrationsHistoryTable($"{tenant.Name}__EFMigrationsHistory");
+                                }
+                                if (option.Type == ConnectionResolverType.BySchema)
+                                {
+                                    optionBuilder.MigrationsHistoryTable("__EFMigrationsHistory", $"dbo.{tenant.Name}");
+                                }
+                            });
                         break;
                     case DatabaseIntegration.Mysql:
-                        dbOptionBuilder = options.UseMySql(resolver.GetConnection());
+                        dbOptionBuilder = options.UseMySql(resolver.GetConnection(),
+                            optionBuilder =>
+                            {
+                                if (option.Type == ConnectionResolverType.ByTabel)
+                                {
+                                    optionBuilder.MigrationsHistoryTable($"{tenant.Name}__EFMigrationsHistory");
+                                }
+                            });
                         break;
                     default:
                         throw new System.NotSupportedException("db type not supported");
