@@ -46,23 +46,24 @@ namespace kiwiho.Course.MultipleTenancy.EFcore.Api.Infrastructure
 
             services.AddScoped<TenantInfo>();
             services.AddScoped<ISqlConnectionResolver, TenantSqlConnectionResolver>();
-            switch (option.DBType)
-            {
-                case DatabaseIntegration.SqlServer:
-                    services.AddScoped<IDbContextManager, SqlServerDbContextManager>();
-                    break;
-                case DatabaseIntegration.Mysql:
-                    services.AddScoped<IDbContextManager, MySqlDbContextManager>();
-                    break;
-                default:
-                    throw new System.NotSupportedException("");
-            }
+            
             services.AddDbContext<TDbContext>((serviceProvider, options) =>
             {
                 var dbContextManager = serviceProvider.GetService<IDbContextManager>();
                 var resolver = serviceProvider.GetRequiredService<ISqlConnectionResolver>();
 
-                var dbOptionBuilder = dbContextManager.GenerateOptionBuilder(options, resolver.GetConnection());
+                DbContextOptionsBuilder dbOptionBuilder = null;
+                switch (option.DBType)
+                {
+                    case DatabaseIntegration.SqlServer:
+                        dbOptionBuilder = options.UseSqlServer(resolver.GetConnection());
+                        break;
+                    case DatabaseIntegration.Mysql:
+                        dbOptionBuilder = options.UseMySql(resolver.GetConnection());
+                        break;
+                    default:
+                        throw new System.NotSupportedException("db type not supported");
+                }
                 if (option.Type == ConnectionResolverType.ByTabel || option.Type == ConnectionResolverType.BySchema)
                 {
                     dbOptionBuilder.ReplaceService<IModelCacheKeyFactory, TenantModelCacheKeyFactory<TDbContext>>();
